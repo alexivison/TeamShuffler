@@ -34,7 +34,7 @@ const Team: React.FC<Props> = ({ members, onAddMember, onRemoveMember }) => {
   const removeMember = useCallback(async (id: number) => {
     await Members.delete(id)
     onRemoveMember && onRemoveMember()
-  }, [])
+  }, [onRemoveMember])
 
   return (
     <Container>
@@ -50,6 +50,7 @@ const Team: React.FC<Props> = ({ members, onAddMember, onRemoveMember }) => {
           />)
         )}
       </MembersContainer>
+      <Info>Remove members by clicking</Info>
       <InputContainer>
         <Input type="text" onChange={handleInput} value={name} />
         <AddButton onClick={addMember} />
@@ -84,6 +85,10 @@ const MembersContainer = styled.div`
   justify-items: start;
 `
 
+const Info = styled.div`
+  font-size: 12px;
+`
+
 const InputContainer = styled.div`
   display: grid;
   grid-gap: 8px;
@@ -106,21 +111,6 @@ const Input = styled.input`
   &:focus {
     outline: none;
   }
-`
-
-const Button = styled.div`
-  display: grid;
-  box-sizing: border-box;
-  justify-items: center;
-  align-items: center;
-  text-align: center;
-  padding: 8px 16px;
-  border-radius: 8px;
-  color: white;
-  font-weight: 600;
-  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.2);
-  user-select: none;
-  cursor: pointer;
 `
 
 const AddButton = styled.div`

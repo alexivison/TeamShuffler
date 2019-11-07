@@ -10,13 +10,17 @@ interface Props {
 
 const TeamMember: React.FC<Props> = ({ member, onRemove }) => {
   return (
-    <Container onClick={() => onRemove ? onRemove(member.id) : {}}>
+    <Container onClick={() => onRemove ? onRemove(member.id) : {}} removable={!!onRemove}>
       <Name>{member.name}</Name>
     </Container>
   )
 }
 
-const Container = styled.div`
+interface ContainerProps {
+  removable: boolean
+} 
+
+const Container = styled.div<ContainerProps>`
   display: grid;
   justify-items: center;
   align-items: center;
@@ -27,6 +31,7 @@ const Container = styled.div`
   color: white;
   font-size: 16px;
   font-weight: 600;
+  ${({ removable }) => removable && 'cursor: pointer;'}
 `
 
 const Name = styled.div`
