@@ -2,7 +2,10 @@ import axios from 'axios'
 
 const createInstance = () => {
   const app = axios.create()
-  app.defaults.baseURL = process.env.API_URL
+
+  console.log(process.env.API_URL)
+
+  app.defaults.baseURL = "https://team-shuffler-api.herokuapp.com"
   app.interceptors.response.use(({ data }) => data)
   app.interceptors.request.use((config) => {
     if (config.method !== 'get') {
