@@ -1,10 +1,8 @@
 import axios from 'axios'
 
-const BASE_URL = "http://localhost:8080"
-
 const createInstance = () => {
   const app = axios.create()
-  app.defaults.baseURL = BASE_URL
+  app.defaults.baseURL = process.env.BASE_URL || 'http://localhost:8080'
   app.interceptors.response.use(({ data }) => data)
   app.interceptors.request.use((config) => {
     if (config.method !== 'get') {
