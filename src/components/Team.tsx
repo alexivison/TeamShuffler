@@ -1,15 +1,23 @@
 import React, { useCallback, useState } from 'react'
 import styled from 'styled-components'
 
-import { Member } from '../models/Member'
+// API
+import { Members } from '../api/endpoint'
+import { Member } from '../api/models/Member'
 
+// Component
 import TeamMember from './TeamMember'
 
+// Res
+import AddIcon from '../res/icon/add.svg'
+
 interface Props {
-  members: Member[] | undefined
+  members?: Member[]
+  onAddMember?: () => any
+  onRemoveMember?: () => any
 }
 
-const Team: React.FC<Props> = ({ members }) => {
+const Team: React.FC<Props> = ({ members, onAddMember, onRemoveMember }) => {
   const [name, setName] = useState('')
 
   const handleInput = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,20 +25,34 @@ const Team: React.FC<Props> = ({ members }) => {
     setName(value)
   }, [])
  
-  const addMember = useCallback(() => {
+  const addMember = useCallback(async () => {
+    await Members.post(name)
     setName('')
+    onAddMember && onAddMember()
+  }, [name, onAddMember])
+
+  const removeMember = useCallback(async (id: number) => {
+    await Members.delete(id)
+    onRemoveMember && onRemoveMember()
   }, [])
 
   return (
     <Container>
-      <TeamName>Members</TeamName>
+      <TopContainer>
+        <TeamName>Members</TeamName>
+      </TopContainer>
       <MembersContainer>
-        {members && members.map((member) => <TeamMember key={member.id} name={member.name} />)}
+        {members && members.map((member) => (
+          <TeamMember
+            key={member.id}
+            member={member}
+            onRemove={removeMember}
+          />)
+        )}
       </MembersContainer>
       <InputContainer>
         <Input type="text" onChange={handleInput} value={name} />
-        <AddButton onClick={addMember}>Add</AddButton>
-        <ShuffleButton>Shuffle!</ShuffleButton>
+        <AddButton onClick={addMember} />
       </InputContainer>
     </Container>
   )
@@ -40,9 +62,15 @@ const Container = styled.div`
   display: grid;
   grid-gap: 16px;
   grid-template-rows: auto 1fr auto;
-  background: #efefef;
+  background: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   padding: 16px;
+`
+
+const TopContainer = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto;
 `
 
 const TeamName = styled.div`
@@ -53,28 +81,30 @@ const TeamName = styled.div`
 const MembersContainer = styled.div`
   display: grid;
   grid-gap: 8px;
-  grid-template-rows: max-content;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  justify-items: start;
 `
 
 const InputContainer = styled.div`
   display: grid;
-  grid-gap: 16px;
+  grid-gap: 8px;
   grid-template-columns: min-content min-content min-content;
+  justify-self: start;
+  background: lightgrey;
+  padding: 4px 8px;
+  border-radius: 8px;
 `
 
 const Input = styled.input`
-  padding: 8px;
+  padding: 4px 8px;
   border-radius: 8px;
-  border: 1px solid;
-  border-color: #d0d0d0;
+  border: none;
   font-size: 14px;
   font-weight: 600;
   color: #333333;
+  background-color: transparent;
 
   &:focus {
     outline: none;
-    border-color: orange;
   }
 `
 
@@ -93,12 +123,19 @@ const Button = styled.div`
   cursor: pointer;
 `
 
-const AddButton = styled(Button)`
-  background: orangered;
-`
+const AddButton = styled.div`
+  width: 24px;
+  height: 24px;
+  align-self: center;
+  background-image: url(${AddIcon});
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  cursor: pointer;
 
-const ShuffleButton = styled(Button)`
-  background: #23c575;
+  &:hover {
+    opacity: 0.8;
+  }
 `
 
 export default Team

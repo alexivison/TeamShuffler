@@ -1,14 +1,17 @@
 import React from 'react'
 import styled from 'styled-components'
 
+import { Member } from '../api/models/Member'
+
 interface Props {
-  name: string
+  member: Member
+  onRemove?: (arg0: number) => any
 }
 
-const TeamMember: React.FC<Props> = ({ name }) => {
+const TeamMember: React.FC<Props> = ({ member, onRemove }) => {
   return (
-    <Container>
-      <Name>{name}</Name>
+    <Container onClick={() => onRemove ? onRemove(member.id) : {}}>
+      <Name>{member.name}</Name>
     </Container>
   )
 }
@@ -19,7 +22,7 @@ const Container = styled.div`
   align-items: center;
   padding: 4px 8px;
   border-radius: 4px;
-  background: linear-gradient(45deg,rgb(137, 179, 255) 0%,rgb(38,168,228) 100%);
+  background-color: #878887;
   user-select: none;
   color: white;
   font-size: 16px;

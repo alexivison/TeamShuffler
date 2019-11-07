@@ -1,30 +1,29 @@
 import React from 'react'
 import styled from 'styled-components'
-import { CSSTransition, TransitionGroup } from 'react-transition-group'
 
-import { Member } from '../models/Member'
+import { Member } from '../api/models/Member'
 
 import TeamMember from './TeamMember'
 
 interface Props {
   name: string
-  members: Member[]
+  members: Member[] | undefined
   className?: string
+  fetching?: boolean
 }
 
-const ShuffledTeam: React.FC<Props> = ({ name, members, className }) => {
+const ShuffledTeam: React.FC<Props> = ({ name, members, fetching, className }) => {
   return (
     <Container className={className}>
       <TeamName>{name}</TeamName>
-      <TransitionGroup>
-          <TeamMembers>
-          {members.map((member) => (
-            <CSSTransition key={member.id} in={false} timeout={3000}>
-              <TeamMember name={member.name}/>
-            </CSSTransition>
-          ))}
+        <TeamMembers>
+        {members && members.map((member) => (
+          <TeamMember
+            key={member.id}
+            member={member}
+          />
+        ))}
         </TeamMembers>
-        </TransitionGroup>
     </Container>
   )
 }
@@ -32,7 +31,8 @@ const ShuffledTeam: React.FC<Props> = ({ name, members, className }) => {
 const Container = styled.div`
   display: grid;
   grid-gap: 16px;
-  background-color: #efefef;
+  grid-template-rows: auto 1fr;
+  align-items: start;
   padding: 16px;
   border-radius: 8px;
 `
@@ -48,8 +48,6 @@ const TeamMembers = styled.div`
   grid-auto-rows: max-content;
   justify-items: start;
   align-items: start;
-  width: 30vw;
-  height: 30vh;
 `
 
 export default ShuffledTeam

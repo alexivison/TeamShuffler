@@ -1,34 +1,53 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 
-import { Member } from './models/Member'
+// API
+import { Members } from './api/endpoint'
+import { Member } from './api/models/Member'
 
+// Components
 import Team from './components/Team'
 import ShuffledTeam from './components/ShuffledTeam'
 
+// Res
+import ShuffleIcon from './res/icon/shuffle.svg'
+
 const App: React.FC = () => {
-  const [fetching, setFetching] = useState(false)
+  const [members, setMembers] = useState<Member[]>([])
+  const [team1, setTeam1] = useState<Member[]>([])
+  const [team2, setTeam2] = useState<Member[]>([])
+  const [fetching, setFetching] = useState<Boolean>(false)
+  const [shuffling, setShuffling] = useState<Boolean>(false)
 
-  const dummyMembers1: Member[] = [{ id: 1, name: "アレク" }, { id: 5, name: "谷川" }, { id: 6, name: "赤石" }, { id: 7, name: "加瀬" }]
-  const dummyMembers2: Member[] = [{ id: 2, name: "中里" }, { id: 3, name: "野口" }, { id: 4, name: "五十嵐" }, { id: 8, name: "西川" }]
-  const dummyMembers3: Member[] = [...dummyMembers1, ...dummyMembers2]
-
-  const callApi = () => {
+  const fetchMembers = useCallback(async () => {
     setFetching(true)
-    fetch('http://localhost:8080/todos')
-      .then(response => response.json())
-      .then(response => console.log(response))
-      .catch(error => console.error(error))
+    setMembers(await Members.get())
     setFetching(false)
-  }
+  }, [])
+
+  const shuffleMembers = useCallback(async () => {
+    setShuffling(true)
+    const { team1, team2 } = await Members.getShuffled()
+    setTeam1(team1)
+    setTeam2(team2)
+    setShuffling(false)
+  }, [])
+
+  useEffect(() => {
+    fetchMembers()
+  }, [fetchMembers])
 
   return (
     <Container>
-      <Title>Team Shuffler</Title>
-      <Team members={dummyMembers3} />
+      <Team
+        members={members}
+        onAddMember={fetchMembers}
+        onRemoveMember={fetchMembers}
+      />
+      <ShuffleButton onClick={shuffleMembers} />
       <TeamGrid>
-        <Team1 name="Team 1" members={dummyMembers1} />
-        <Team2 name="Team 2" members={dummyMembers2} />
+        <Team1 name="Team 1" members={team1} fetching={!shuffling} />
+        <Team2 name="Team 2" members={team2} fetching={!shuffling} />
       </TeamGrid>
     </Container>
   )
@@ -42,14 +61,21 @@ const Container = styled.div`
   justify-content: center;
 `
 
-const Title = styled.div`
-  font-size: 32px;
-`
-
 const TeamGrid = styled.div`
   display: grid;
   grid-gap: 24px;
   grid-template-columns: 1fr 1fr;
+`
+
+const ShuffleButton = styled.div`
+  width: 40px;
+  height: 40px;
+  justify-self: center;
+  background-image: url(${ShuffleIcon});
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  cursor: pointer;
 `
 
 const Team1 = styled(ShuffledTeam)`
